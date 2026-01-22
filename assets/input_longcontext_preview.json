@@ -1,0 +1,26 @@
+{
+  "description": "4 policy/research documents for analysis",
+  "total_files": 4,
+  "files": [
+    {
+      "name": "DAF-COMP(2023)14.en.txt",
+      "description": "OECD Competition Policy Document",
+      "preview": "Organisation for Economic Co-operation and Development\n\nDAF/COMP(2023)14\n\nUnclassified - English\n27 November 2023\n\n..."
+    },
+    {
+      "name": "FULLTEXT01.txt", 
+      "description": "Academic Paper - Technological Forecasting",
+      "preview": "Contents lists available at ScienceDirect\n\nTechnological Forecasting & Social Change\n\nIndustrial design rights and the market value of firms\n\n..."
+    },
+    {
+      "name": "The-State-of-Competition.txt",
+      "description": "e61 Research Note on Competition in Australia",
+      "preview": "The State of Competition In Australia\n\ne61 Research Note No. 9\n\nThe state of competition in Australia...\n\n..."
+    },
+    {
+      "name": "barriers-to-collaboration-and-commercialisation-iisa.txt",
+      "description": "Industry Innovation and Science Australia Report",
+      "preview": "Barriers to collaboration and commercialisation\n\nIndustry Innovation and Science Australia\n\n..."
+    }
+  ]
+}

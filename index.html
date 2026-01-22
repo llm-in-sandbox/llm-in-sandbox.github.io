@@ -1,0 +1,1368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM-in-Sandbox Demo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
+    <!-- MathJax for LaTeX rendering -->
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+            }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cambria Math', Cambria, Georgia, serif;
+            background: #fff;
+            color: #333;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 60px 20px;
+            background: linear-gradient(180deg, rgba(155, 123, 184, 0.06) 0%, transparent 100%);
+        }
+
+        .hero h1 {
+            font-size: 2.2rem;
+            margin-bottom: 20px;
+            color: #6B4C8A;
+        }
+
+        .hero .subtitle {
+            font-size: 1.2rem;
+            color: #9B7BB8;
+            margin-bottom: 30px;
+        }
+
+        .hero .buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        .btn-dark {
+            background: #3d3d3d;
+            color: white;
+            border-radius: 25px;
+        }
+
+        .btn-dark:hover {
+            background: #555;
+            transform: translateY(-2px);
+        }
+
+        .btn-link {
+            background: transparent;
+            color: #3b82f6;
+            border: none;
+            font-weight: 500;
+            font-size: 1.1rem;
+            font-family: 'Cambria Math', Cambria, Georgia, serif;
+        }
+
+        .btn-link:hover {
+            color: #2563eb;
+            text-decoration: underline;
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, #9B7BB8, #C9B8DA);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(155, 123, 184, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(155, 123, 184, 0.1);
+            color: #9B7BB8;
+            border: 1px solid rgba(155, 123, 184, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(155, 123, 184, 0.2);
+        }
+
+        /* Quick Start Section */
+        .quickstart {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .quickstart h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #9B7BB8;
+        }
+
+        .code-block {
+            background: #1e1e2e;
+            border-radius: 12px;
+            padding: 20px;
+            font-family: 'Fira Code', 'Monaco', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            border: 1px solid rgba(155, 123, 184, 0.2);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .code-block .comment {
+            color: #8b949e;
+        }
+
+        .code-block .command {
+            color: #79c0ff;
+        }
+
+        .code-block .string {
+            color: #a5d6ff;
+        }
+
+        .code-line {
+            margin: 8px 0;
+            color: #e6e6e6;
+        }
+
+        .code-line::before {
+            content: "$ ";
+            color: #7ee787;
+        }
+
+        /* Video Demo Section */
+        .video-demo {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 60px 20px;
+            text-align: center;
+        }
+
+        .video-demo h2 {
+            color: #9B7BB8;
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+
+        .video-subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+
+        .video-container {
+            position: relative;
+            background: #1e1e2e;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(155, 123, 184, 0.2);
+            border: 1px solid rgba(155, 123, 184, 0.2);
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+        }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 16px;
+        }
+
+        /* Gallery Section */
+        .gallery {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        .gallery h2 {
+            text-align: center;
+            margin-bottom: 40px;
+            color: #9B7BB8;
+            font-size: 2rem;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 1200px) {
+            .gallery-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 700px) {
+            .gallery-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .gallery-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(155, 123, 184, 0.15);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .gallery-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(155, 123, 184, 0.15);
+            border-color: rgba(155, 123, 184, 0.4);
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            padding: 30px;
+            text-align: center;
+            background: linear-gradient(180deg, rgba(155, 123, 184, 0.1) 0%, transparent 100%);
+        }
+
+        .card-content {
+            padding: 20px;
+        }
+
+        .card-content h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .card-content p {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .card-io {
+            display: flex;
+            gap: 10px;
+            font-size: 0.8rem;
+            flex-wrap: wrap;
+        }
+
+        .card-io span {
+            background: rgba(155, 123, 184, 0.1);
+            padding: 4px 10px;
+            border-radius: 20px;
+            color: #9B7BB8;
+        }
+
+        .view-demo-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin-top: 15px;
+            background: linear-gradient(90deg, #9B7BB8, #C9B8DA);
+            color: white;
+            text-align: center;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .view-demo-btn:hover {
+            opacity: 0.9;
+            transform: scale(1.02);
+        }
+
+        /* Demo Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            max-width: calc(1100px + 90px);
+            width: 100%;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            max-width: 1100px;
+            width: 100%;
+            height: 85vh;
+            max-height: 900px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            background: linear-gradient(90deg, #9B7BB8, #C9B8DA);
+            color: white;
+        }
+
+        .modal-header h2 {
+            font-size: 1.5rem;
+        }
+
+        .modal-close {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .modal-close:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .modal-body {
+            padding: 24px;
+            position: relative;
+            flex: 1;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+        }
+
+        /* Quick Navigation - next to modal */
+        .quick-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        @media (max-width: 1200px) {
+            .modal-wrapper {
+                flex-direction: column;
+                max-width: 1100px;
+            }
+            
+            .quick-nav {
+                position: fixed;
+                bottom: 30px;
+                left: 50%;
+                transform: translateX(-50%);
+                flex-direction: row;
+                background: rgba(255,255,255,0.98);
+                padding: 12px 16px;
+                border-radius: 30px;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+                z-index: 1002;
+            }
+            
+            .quick-nav-btn {
+                width: 44px;
+                height: 44px;
+                font-size: 1.2rem;
+            }
+            
+            .quick-nav-btn .tooltip {
+                display: none;
+            }
+        }
+
+        .quick-nav-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            background: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            cursor: pointer;
+            font-size: 1.3rem;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .quick-nav-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(155, 123, 184, 0.3);
+        }
+
+        .quick-nav-btn.active {
+            background: linear-gradient(135deg, #9B7BB8, #C9B8DA);
+            color: white;
+        }
+
+        .quick-nav-btn .tooltip {
+            position: absolute;
+            right: 60px;
+            background: #333;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+        }
+
+        .quick-nav-btn:hover .tooltip {
+            opacity: 1;
+        }
+
+        /* Accordion Sections */
+        .accordion-section {
+            margin-bottom: 16px;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .accordion-header {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            background: #f8f9fa;
+            cursor: pointer;
+            transition: all 0.3s;
+            gap: 12px;
+        }
+
+        .accordion-header:hover {
+            background: #f0f2f5;
+        }
+
+        .accordion-header.active {
+            background: linear-gradient(90deg, rgba(155, 123, 184, 0.1), rgba(201, 184, 218, 0.1));
+        }
+
+        .accordion-icon {
+            font-size: 1.5rem;
+        }
+
+        .accordion-title {
+            flex: 1;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .accordion-arrow {
+            font-size: 1.2rem;
+            color: #666;
+            transition: transform 0.3s;
+        }
+
+        .accordion-header.active .accordion-arrow {
+            transform: rotate(180deg);
+        }
+
+        .accordion-content {
+            display: none;
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .accordion-content.active {
+            display: block;
+        }
+
+        /* Input Section Styling */
+        .input-files {
+            display: grid;
+            gap: 16px;
+        }
+
+        .input-file {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .input-file-name {
+            font-weight: 600;
+            color: #9B7BB8;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .input-file pre {
+            background: #1e1e2e;
+            color: #e6e6e6;
+            padding: 12px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 0.85rem;
+        }
+
+        /* Trajectory Section */
+        .trajectory-container {
+            padding: 0;
+        }
+
+        .trajectory-step {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px dashed #e0e0e0;
+        }
+
+        .trajectory-step:last-child {
+            border-bottom: none;
+        }
+
+        .step-number {
+            flex-shrink: 0;
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #9B7BB8, #C9B8DA);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-thought {
+            font-style: italic;
+            color: #555;
+            margin-bottom: 10px;
+            padding: 12px;
+            background: #f0f7ff;
+            border-radius: 8px;
+            border-left: 3px solid #9B7BB8;
+        }
+
+        .step-action {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .step-action-label {
+            font-weight: 600;
+            color: #C9B8DA;
+            margin-bottom: 4px;
+        }
+
+        .step-observation {
+            background: #f0fff4;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 0.85rem;
+            border-left: 3px solid #48bb78;
+        }
+
+        /* Output Section */
+        .output-files {
+            display: grid;
+            gap: 16px;
+        }
+
+        .output-file {
+            background: #f8f9fa;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .output-file-header {
+            padding: 12px 16px;
+            background: linear-gradient(90deg, rgba(155, 123, 184, 0.1), rgba(201, 184, 218, 0.1));
+            font-weight: 600;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .output-preview {
+            padding: 16px;
+        }
+
+        .output-preview img {
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .output-preview video {
+            max-width: 100%;
+            border-radius: 8px;
+        }
+
+        .output-preview audio {
+            width: 100%;
+        }
+
+        .output-preview iframe {
+            width: 100%;
+            height: 1000px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+        }
+
+        /* Problem Statement */
+        .problem-statement {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            font-family: inherit;
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+            border-top: 1px solid rgba(155, 123, 184, 0.1);
+            background: white;
+        }
+
+        footer a {
+            color: #9B7BB8;
+            text-decoration: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+            
+            .modal-content {
+                margin: 10px 0;
+            }
+            
+            .trajectory-step {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1>LLM-in-Sandbox Elicits General Agentic Intelligence</h1>
+        <p style="color: #555; font-size: 1.15rem; margin-bottom: 5px;">
+            Daixuan Cheng<sup>αβ</sup>, Shaohan Huang<sup>β</sup>, Yuxian Gu<sup>γ</sup>, Huatong Song<sup>α</sup>, Guoxin Chen<sup>α</sup>
+        </p>
+        <p style="color: #555; font-size: 1.15rem; margin-bottom: 10px;">
+            Li Dong<sup>β</sup>, Wayne Xin Zhao<sup>α</sup>, Ji-Rong Wen<sup>α</sup>, Furu Wei<sup>β</sup>
+        </p>
+        <p style="color: #888; font-size: 1rem; margin-bottom: 30px;">
+            <sup>α</sup>GSAI, Renmin University of China &nbsp; <sup>β</sup>Microsoft Research &nbsp; <sup>γ</sup>Tsinghua University
+        </p>
+        <div class="buttons">
+            <a href="#" class="btn btn-link">📄 Paper</a>
+            <a href="https://github.com/llm-in-sandbox/llm-in-sandbox" class="btn btn-link">💻 Code</a>
+        </div>
+        <p style="max-width: 1000px; margin: 0 auto 30px; color: #555; font-size: 1.05rem; line-height: 1.8; text-align: justify;">
+            We introduce <strong>LLM-in-Sandbox</strong>, enabling LLMs to explore within a code sandbox (i.e., a virtual computer), to elicit general intelligence in non-code domains. We first demonstrate that strong LLMs, without additional training, exhibit generalization capabilities to leverage the code sandbox for non-code tasks. For example, LLMs spontaneously access external resources to acquire new knowledge, leverage the file system to handle long contexts, and execute scripts to satisfy formatting requirements. We further show that these agentic capabilities can be enhanced through <strong>LLM-in-Sandbox Reinforcement Learning</strong>, which uses only non-agentic data to train models for sandbox exploration. Experiments demonstrate that LLM-in-Sandbox, in both training-free and post-trained settings, achieves robust generalization spanning mathematics, physics, chemistry, biomedicine, long-context understanding, and instruction following. Finally, we analyze LLM-in-Sandbox's efficiency from computational and system perspectives, and open-source it as a Python package to facilitate real-world deployment.
+        </p>
+    </section>
+
+    <!-- Quick Start Section -->
+    <section class="quickstart">
+        <h2>⚡ Quick Start</h2>
+        <div class="code-block">
+            <div style="margin-bottom: 15px; color: #8b949e;"># Install our package (requires Docker pre-installed)</div>
+            <div class="code-line"><span class="command">pip install</span> llm-in-sandbox</div>
+            <div style="margin: 15px 0; color: #8b949e;"># Put your LLM in sandbox</div>
+            <div class="code-line"><span class="command">llm-in-sandbox</span> run</span> \</div>
+            <div style="margin-left: 20px; color: #a5d6ff;">--query "How many r's are in strawberry?" \</div>
+            <div style="margin-left: 20px; color: #a5d6ff;">--llm_name your-model \</div>
+            <div style="margin-left: 20px; color: #a5d6ff;">--llm_base_url http://your-api-server/v1</div>
+            <div style="margin-left: 20px; color: #a5d6ff;">--api_key your-api-key</div>
+        </div>
+    </section>
+
+    <!-- Video Demo Section -->
+    <section class="video-demo" id="video-demo">
+        <h2>🎥 Demo Video</h2>
+        <p class="video-subtitle">Watch LLM-in-Sandbox solve a chemistry problem: converting IUPAC names to SMILES notation</p>
+        <p style="color: #666; font-size: 0.95rem; margin-bottom: 20px; max-width: 800px; margin-left: auto; margin-right: auto;">
+            Task: Given a chemical compound's IUPAC name, identify the correct SMILES representation from multiple choices. The agent downloads PubChem package and uses it to convert the name to SMILES. <strong>Gold Answer: A</strong>
+        </p>
+        <div class="video-container">
+            <iframe 
+                src="https://www.youtube.com/embed/Ols-XrOwIHo" 
+                title="LLM-in-Sandbox Demo"
+                frameborder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                referrerpolicy="strict-origin-when-cross-origin" 
+                allowfullscreen>
+            </iframe>
+        </div>
+    </section>
+
+    <!-- Results Section -->
+    <section class="video-demo" id="results">
+        <h2>📊 Results</h2>
+        <p class="video-subtitle">Generalization across diverse LLMs and Domains</p>
+        <img src="assets/intro.png" alt="LLM-in-Sandbox Results" style="width: 100%; max-width: 1000px; display: block; margin: 0 auto;">
+    </section>
+
+    <!-- Gallery Section -->
+    <section class="gallery" id="examples">
+        <h2>📂 Example Gallery</h2>
+        <div class="gallery-grid">
+
+            <!-- Chemical Analysis Card -->
+            <div class="gallery-card">
+                <div class="card-icon">🧪</div>
+                <div class="card-content">
+                    <h3>Chemical Analysis</h3>
+                    <p>Convert IUPAC chemical names to SMILES notation</p>
+                    <div class="card-io">
+                        <span>📥 None</span>
+                        <span>📤 Answer</span>
+                    </div>
+                    <button class="view-demo-btn" onclick="openDemo('chemical')">View Demo →</button>
+                </div>
+            </div>
+
+            <!-- Math Problem Card -->
+            <div class="gallery-card">
+                <div class="card-icon">📐</div>
+                <div class="card-content">
+                    <h3>Math Problem</h3>
+                    <p>Solve complex geometry problems with code assistance</p>
+                    <div class="card-io">
+                        <span>📥 None</span>
+                        <span>📤 Answer</span>
+                    </div>
+                    <button class="view-demo-btn" onclick="openDemo('math')">View Demo →</button>
+                </div>
+            </div>
+
+            <!-- Instruction Following Card -->
+            <div class="gallery-card">
+                <div class="card-icon">📝</div>
+                <div class="card-content">
+                    <h3>Instruction Following</h3>
+                    <p>Generate text following strict formatting constraints</p>
+                    <div class="card-io">
+                        <span>📥 None</span>
+                        <span>📤 Answer</span>
+                    </div>
+                    <button class="view-demo-btn" onclick="openDemo('instruct')">View Demo →</button>
+                </div>
+            </div>
+
+            <!-- Long Context Card -->
+            <div class="gallery-card">
+                <div class="card-icon">📚</div>
+                <div class="card-content">
+                    <h3>Long Context QA</h3>
+                    <p>Analyze multiple documents to answer complex questions</p>
+                    <div class="card-io">
+                        <span>📥 Documents</span>
+                        <span>📤 Answer</span>
+                    </div>
+                    <button class="view-demo-btn" onclick="openDemo('longcontext')">View Demo →</button>
+                </div>
+            </div>
+
+            <!-- Travel Planning Card -->
+            <div class="gallery-card">
+                <div class="card-icon">🗺️</div>
+                <div class="card-content">
+                    <h3>Travel Planning</h3>
+                    <p>Create a 3-day Tokyo trip itinerary with interactive map</p>
+                    <div class="card-io">
+                        <span>📥 None</span>
+                        <span>📤 HTML Map</span>
+                    </div>
+                    <button class="view-demo-btn" onclick="openDemo('travel')">View Demo →</button>
+                </div>
+            </div>
+
+            <!-- Poster Design Card -->
+            <div class="gallery-card">
+                <div class="card-icon">🎨</div>
+                <div class="card-content">
+                    <h3>Poster Design</h3>
+                    <p>Design a promotional poster for a tech conference</p>
+                    <div class="card-io">
+                        <span>📥 Event JSON</span>
+                        <span>📤 SVG + PNG</span>
+                    </div>
+                    <button class="view-demo-btn" onclick="openDemo('poster')">View Demo →</button>
+                </div>
+            </div>
+
+            <!-- Video Creation Card -->
+            <div class="gallery-card">
+                <div class="card-icon">🎬</div>
+                <div class="card-content">
+                    <h3>Video Creation</h3>
+                    <p>Create a birthday countdown video with animations</p>
+                    <div class="card-io">
+                        <span>📥 Theme JSON</span>
+                        <span>📤 MP4 Video</span>
+                    </div>
+                    <button class="view-demo-btn" onclick="openDemo('video')">View Demo →</button>
+                </div>
+            </div>
+
+            <!-- Music Composition Card -->
+            <div class="gallery-card">
+                <div class="card-icon">🎵</div>
+                <div class="card-content">
+                    <h3>Music Composition</h3>
+                    <p>Compose original ambient piano music with MIDI</p>
+                    <div class="card-io">
+                        <span>📥 None</span>
+                        <span>📤 MIDI + Audio</span>
+                    </div>
+                    <button class="view-demo-btn" onclick="openDemo('music')">View Demo →</button>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Demo Modal -->
+    <div class="modal-overlay" id="demoModal">
+        <div class="modal-wrapper">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="modalTitle">Demo Title</h2>
+                    <button class="modal-close" onclick="closeDemo()">×</button>
+                </div>
+                <div class="modal-body" id="modalBody">
+                    <!-- Content will be injected here -->
+                </div>
+            </div>
+            <!-- Quick Navigation - outside modal content -->
+            <div class="quick-nav" id="quickNav">
+                <!-- Will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>LLM-in-Sandbox © 2026</p>
+        <p style="margin-top: 10px;">Compatible with OpenAI, Anthropic, and self-hosted servers (vLLM, SGLang, etc.) and more</p>
+    </footer>
+
+    <script>
+        // Demo data - trajectory is loaded dynamically from JSON files
+        const demoData = {
+            travel: {
+                title: "🗺️ Travel Planning - 3-Day Tokyo Trip",
+                trajectoryFile: "assets/trajectory_travel.json",
+                input: null, // No input files for this example
+                output: {
+                    type: "html",
+                    files: [
+                        { name: "map.html", description: "Interactive Leaflet.js map with 3-day itinerary" }
+                    ],
+                    preview: `<iframe src="assets/map.html"></iframe>`
+                }
+            },
+            poster: {
+                title: "🎨 Poster Design - AGI Summit 2026",
+                trajectoryFile: "assets/trajectory_poster.json",
+                input: [
+                    { name: "event_info.json", file: "assets/input_poster_event.json" }
+                ],
+                output: {
+                    type: "image",
+                    files: [
+                        { name: "poster.svg", description: "Vector format poster" },
+                        { name: "poster.png", description: "Raster format (1920px height)" }
+                    ],
+                    preview: `<img src="assets/poster.png" alt="AGI Summit 2026 Poster">`
+                }
+            },
+            video: {
+                title: "🎬 Video Creation - Birthday Countdown",
+                trajectoryFile: "assets/trajectory_video.json",
+                input: [
+                    { name: "theme.json", file: "assets/input_video_theme.json" }
+                ],
+                output: {
+                    type: "video",
+                    files: [
+                        { name: "birthday_countdown.mp4", description: "Birthday countdown video (12 seconds)" }
+                    ],
+                    preview: `<video controls src="assets/birthday_countdown.mp4"></video>`
+                }
+            },
+            music: {
+                title: "🎵 Music Composition - Ambient Piano",
+                trajectoryFile: "assets/trajectory_music.json",
+                input: null, // No input files for this example
+                output: {
+                    type: "audio",
+                    files: [
+                        { name: "composition.mid", description: "MIDI file" },
+                        { name: "preview.wav", description: "Audio preview" },
+                        { name: "sheet_music.md", description: "Notation document" }
+                    ],
+                    preview: `<audio controls src="assets/preview.wav"></audio>`
+                }
+            },
+            chemical: {
+                title: "🧪 Chemical Analysis - IUPAC to SMILES",
+                trajectoryFile: "assets/trajectory_chemical.json",
+                input: null,
+                output: {
+                    type: "text",
+                    files: [
+                        { name: "answer.txt", description: "The correct answer choice" }
+                    ],
+                    preview: `<div style="padding: 20px; background: #f0fff4; border-radius: 8px; text-align: center;"><span style="font-size: 3rem; font-weight: bold; color: #48bb78;">A</span><p style="margin-top: 10px; color: #666;">Correct SMILES representation identified</p></div>`
+                }
+            },
+            math: {
+                title: "📐 Math Problem - Geometry",
+                trajectoryFile: "assets/trajectory_math.json",
+                input: null,
+                output: {
+                    type: "text",
+                    files: [
+                        { name: "answer.txt", description: "The computed answer" }
+                    ],
+                    preview: `<div style="padding: 20px; background: #f5f0ff; border-radius: 8px; text-align: center;"><span style="font-size: 2rem; font-weight: bold; color: #9B7BB8;">$$\\boxed{588}$$</span><p style="margin-top: 10px; color: #666;">Area of heptagon AFNBCEM</p></div>`
+                }
+            },
+            longcontext: {
+                title: "📚 Long Context QA - Document Analysis",
+                trajectoryFile: "assets/trajectory_longcontext.json",
+                inputPreview: {
+                    description: "4 policy/research documents for analysis",
+                    files: [
+                        { name: "DAF-COMP(2023)14.en.txt", description: "OECD Competition Policy Document", preview: "Organisation for Economic Co-operation and Development\nDAF/COMP(2023)14\nUnclassified - English, 27 November 2023..." },
+                        { name: "FULLTEXT01.txt", description: "Academic Paper - Technological Forecasting", preview: "Technological Forecasting & Social Change\nIndustrial design rights and the market value of firms..." },
+                        { name: "The-State-of-Competition.txt", description: "e61 Research Note on Competition in Australia", preview: "The State of Competition In Australia\ne61 Research Note No. 9..." },
+                        { name: "barriers-to-collaboration-and-commercialisation-iisa.txt", description: "Industry Innovation and Science Australia Report", preview: "Barriers to collaboration and commercialisation\nIndustry Innovation and Science Australia..." }
+                    ]
+                },
+                input: null,
+                output: {
+                    type: "text",
+                    files: [
+                        { name: "answer.txt", description: "Ranked list of industries" }
+                    ],
+                    preview: `<div style="padding: 20px; background: #fff7f0; border-radius: 8px;"><h4 style="color: #dd6b20; margin-bottom: 10px;">📊 Industry Ranking by Infringements:</h4><ol style="color: #333; line-height: 2;"><li>Airline Industry</li><li>Accommodation Industry</li></ol></div>`
+                }
+            },
+            instruct: {
+                title: "📝 Instruction Following - Constrained Generation",
+                trajectoryFile: "assets/trajectory_instruct.json",
+                input: null,
+                output: {
+                    type: "text",
+                    files: [
+                        { name: "answer.txt", description: "Three sentences with equal character counts" }
+                    ],
+                    preview: `<div style="padding: 20px; background: #f5f0ff; border-radius: 8px;"><h4 style="color: #9B7BB8; margin-bottom: 15px;">✨ Generated Response:</h4><div style="font-family: monospace; line-height: 2;"><p>Franks shaped Christianity.</p><p>Charlemagne defined Europe.</p><p>Feudalism revived learning.</p></div><p style="margin-top: 15px; color: #666; font-size: 0.9rem;">Each sentence: 25 characters, all different words</p></div>`
+                }
+            }
+        };
+        
+        // Cache for loaded data
+        const trajectoryCache = {};
+        const inputCache = {};
+
+        async function loadTrajectory(demoKey) {
+            if (trajectoryCache[demoKey]) {
+                return trajectoryCache[demoKey];
+            }
+            
+            const demo = demoData[demoKey];
+            try {
+                const response = await fetch(demo.trajectoryFile);
+                const data = await response.json();
+                trajectoryCache[demoKey] = data;
+                return data;
+            } catch (error) {
+                console.error('Failed to load trajectory:', error);
+                return null;
+            }
+        }
+        
+        async function loadInputFiles(demoKey) {
+            const demo = demoData[demoKey];
+            if (!demo.input || demo.input.length === 0) {
+                return null;
+            }
+            
+            if (inputCache[demoKey]) {
+                return inputCache[demoKey];
+            }
+            
+            const inputData = [];
+            for (const inputFile of demo.input) {
+                try {
+                    const response = await fetch(inputFile.file);
+                    const text = await response.text();
+                    inputData.push({
+                        name: inputFile.name,
+                        content: text
+                    });
+                } catch (error) {
+                    console.error('Failed to load input file:', inputFile.name, error);
+                }
+            }
+            
+            inputCache[demoKey] = inputData;
+            return inputData;
+        }
+
+        async function openDemo(demoKey) {
+            const demo = demoData[demoKey];
+            const modal = document.getElementById('demoModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalBody = document.getElementById('modalBody');
+
+            modalTitle.textContent = demo.title;
+            
+            // Show loading state
+            modalBody.innerHTML = '<div style="text-align: center; padding: 40px;"><p>Loading data...</p></div>';
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            
+            // Load trajectory and input data in parallel
+            const [trajectoryData, inputData] = await Promise.all([
+                loadTrajectory(demoKey),
+                loadInputFiles(demoKey)
+            ]);
+            
+            if (!trajectoryData) {
+                modalBody.innerHTML = '<div style="text-align: center; padding: 40px; color: red;"><p>Failed to load trajectory data.</p></div>';
+                return;
+            }
+            
+            const problemStatement = trajectoryData.problem_statement || '';
+            const steps = trajectoryData.steps || [];
+            
+            const hasInput = inputData && inputData.length > 0;
+            const hasInputPreview = demo.inputPreview && demo.inputPreview.files && demo.inputPreview.files.length > 0;
+            
+            // Populate quick navigation
+            const quickNav = document.getElementById('quickNav');
+            quickNav.innerHTML = `
+                <button class="quick-nav-btn active" onclick="scrollToSection('section-problem')">
+                    📝
+                    <span class="tooltip">Problem Statement</span>
+                </button>
+                ${(hasInput || hasInputPreview) ? `
+                <button class="quick-nav-btn" onclick="scrollToSection('section-input')">
+                    📥
+                    <span class="tooltip">Input Files</span>
+                </button>
+                ` : ''}
+                <button class="quick-nav-btn" onclick="scrollToSection('section-trajectory')">
+                    🔄
+                    <span class="tooltip">Trajectory (${steps.length} steps)</span>
+                </button>
+                <button class="quick-nav-btn" onclick="scrollToSection('section-output')">
+                    📤
+                    <span class="tooltip">Output</span>
+                </button>
+            `;
+
+            let content = `
+                <!-- Problem Statement -->
+                <div class="accordion-section" id="section-problem">
+                    <div class="accordion-header active" onclick="toggleAccordion(this)">
+                        <span class="accordion-icon">📝</span>
+                        <span class="accordion-title">Problem Statement</span>
+                        <span class="accordion-arrow">▼</span>
+                    </div>
+                    <div class="accordion-content active">
+                        <div class="problem-statement">${escapeHtmlPreserveLaTeX(problemStatement)}</div>
+                    </div>
+                </div>
+            `;
+            
+            // Input Section - show if there are input files or input preview
+            if (hasInput) {
+                content += `
+                    <div class="accordion-section" id="section-input">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
+                            <span class="accordion-icon">📥</span>
+                            <span class="accordion-title">Input Files</span>
+                            <span class="accordion-arrow">▼</span>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="input-files">
+                                ${inputData.map(file => `
+                                    <div class="input-file">
+                                        <div class="input-file-name">📄 ${file.name}</div>
+                                        <pre>${escapeHtml(file.content)}</pre>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (hasInputPreview) {
+                // Show input preview (file list with short previews)
+                const previewFiles = demo.inputPreview.files;
+                content += `
+                    <div class="accordion-section" id="section-input">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
+                            <span class="accordion-icon">📥</span>
+                            <span class="accordion-title">Input Files (${previewFiles.length} documents)</span>
+                            <span class="accordion-arrow">▼</span>
+                        </div>
+                        <div class="accordion-content">
+                            <p style="margin-bottom: 16px; color: #666;">${escapeHtml(demo.inputPreview.description)}</p>
+                            <div class="input-files">
+                                ${previewFiles.map(file => `
+                                    <div class="input-file">
+                                        <div class="input-file-name">📄 ${escapeHtml(file.name)}</div>
+                                        <div style="color: #666; font-size: 0.85rem; margin-bottom: 8px;">${escapeHtml(file.description)}</div>
+                                        <pre style="background: #1e1e2e; color: #e6e6e6; padding: 12px; border-radius: 6px; font-size: 0.85rem;">${escapeHtml(file.preview)}</pre>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Trajectory Section - using actual data from JSON
+            content += `
+                <div class="accordion-section" id="section-trajectory">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">
+                        <span class="accordion-icon">🔄</span>
+                        <span class="accordion-title">Agent Trajectory (${steps.length} steps)</span>
+                        <span class="accordion-arrow">▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="trajectory-container">
+                            ${steps.map((step, idx) => renderTrajectoryStep(step, idx)).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Output Section
+            content += `
+                <div class="accordion-section" id="section-output">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">
+                        <span class="accordion-icon">📤</span>
+                        <span class="accordion-title">Output</span>
+                        <span class="accordion-arrow">▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="output-files">
+                            ${demo.output.files.map(file => `
+                                <div style="margin-bottom: 8px;">
+                                    <span style="color: #9B7BB8; font-weight: 600;">📄 ${file.name}</span>
+                                    <span style="color: #666;"> - ${file.description}</span>
+                                </div>
+                            `).join('')}
+                            <div class="output-file" style="margin-top: 16px;">
+                                <div class="output-file-header">🖼️ Preview</div>
+                                <div class="output-preview">
+                                    ${demo.output.preview}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            modalBody.innerHTML = content;
+            
+            // Re-render MathJax for LaTeX formulas
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                MathJax.typesetPromise([modalBody]).catch((err) => console.log('MathJax error:', err));
+            }
+        }
+        
+        function renderTrajectoryStep(step, idx) {
+            const thought = step.thought || step.reasoning_content || '';
+            const action = step.action || {};
+            const observation = step.observation || '';
+            
+            // Format action display
+            let actionHtml = '';
+            if (action.function) {
+                actionHtml = `<div class="step-action-label">⚡ Action: ${escapeHtml(action.function)}</div>`;
+                if (action.parameters) {
+                    const params = typeof action.parameters === 'string' 
+                        ? action.parameters 
+                        : JSON.stringify(action.parameters, null, 2);
+                    // Truncate very long parameters
+                    const displayParams = params.length > 2000 
+                        ? params.substring(0, 2000) + '\n... (truncated)' 
+                        : params;
+                    actionHtml += `<pre style="background: #1e1e2e; color: #e6e6e6; padding: 10px; border-radius: 6px; overflow-x: auto; font-size: 0.8rem; margin-top: 8px;">${escapeHtml(displayParams)}</pre>`;
+                }
+            }
+            
+            // Format observation display (truncate if too long)
+            const maxObsLength = 3000;
+            let obsDisplay = observation;
+            if (observation.length > maxObsLength) {
+                obsDisplay = observation.substring(0, maxObsLength) + '\n... (output truncated)';
+            }
+            
+            return `
+                <div class="trajectory-step">
+                    <div class="step-number">${idx + 1}</div>
+                    <div class="step-content">
+                        ${thought ? `<div class="step-thought">💭 ${escapeHtml(thought)}</div>` : ''}
+                        ${actionHtml ? `<div class="step-action">${actionHtml}</div>` : ''}
+                        ${observation ? `
+                            <div class="step-observation">
+                                <strong>📋 Observation:</strong><br>
+                                <pre style="white-space: pre-wrap; font-size: 0.85rem; margin-top: 8px;">${escapeHtml(obsDisplay)}</pre>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        function closeDemo() {
+            const modal = document.getElementById('demoModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+            // Clear quick nav content
+            const quickNav = document.getElementById('quickNav');
+            if (quickNav) {
+                quickNav.innerHTML = '';
+            }
+        }
+        
+        function scrollToSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            const modalBody = document.getElementById('modalBody');
+            if (section && modalBody) {
+                // Expand the section if collapsed
+                const header = section.querySelector('.accordion-header');
+                const content = section.querySelector('.accordion-content');
+                if (header && content && !header.classList.contains('active')) {
+                    header.classList.add('active');
+                    content.classList.add('active');
+                }
+                
+                // Scroll within modal body
+                const offsetTop = section.offsetTop - modalBody.offsetTop;
+                modalBody.scrollTo({ top: offsetTop - 20, behavior: 'smooth' });
+                
+                // Update active button
+                document.querySelectorAll('.quick-nav-btn').forEach(btn => btn.classList.remove('active'));
+                event.target.closest('.quick-nav-btn').classList.add('active');
+            }
+        }
+
+        function toggleAccordion(header) {
+            header.classList.toggle('active');
+            const content = header.nextElementSibling;
+            content.classList.toggle('active');
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // Escape HTML but preserve LaTeX delimiters for MathJax
+        function escapeHtmlPreserveLaTeX(text) {
+            if (!text) return '';
+            // First escape HTML entities
+            let escaped = text
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+            // LaTeX $ delimiters are preserved (not escaped)
+            return escaped;
+        }
+
+        // Close modal on overlay click
+        document.getElementById('demoModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeDemo();
+            }
+        });
+
+        // Close modal on escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeDemo();
+            }
+        });
+    </script>
+
+</body>
+</html>
