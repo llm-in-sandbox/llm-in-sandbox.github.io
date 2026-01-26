@@ -675,6 +675,67 @@
             line-height: 1.7;
         }
 
+        /* Citation Section */
+        .citation-section {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 60px 20px;
+            text-align: center;
+        }
+
+        .citation-section h2 {
+            color: #9B7BB8;
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+
+        .citation-subtitle {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .citation-box {
+            position: relative;
+            background: #1e1e2e;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: left;
+            border: 1px solid rgba(155, 123, 184, 0.2);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .citation-box pre {
+            color: #e6e6e6;
+            font-family: 'Fira Code', 'Monaco', monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(155, 123, 184, 0.3);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+
+        .copy-btn:hover {
+            background: rgba(155, 123, 184, 0.5);
+        }
+
+        .copy-btn.copied {
+            background: #48bb78;
+        }
+
         /* Footer */
         footer {
             text-align: center;
@@ -907,6 +968,23 @@
             </div>
         </div>
     </div>
+
+    <!-- Citation Section -->
+    <section class="citation-section" id="citation">
+        <h2>Citation</h2>
+        <p class="citation-subtitle">If you find our work helpful, please cite us:</p>
+        <div class="citation-box">
+            <button class="copy-btn" onclick="copyCitation()">
+                <span id="copyBtnText">📋 Copy</span>
+            </button>
+            <pre id="citationText">@article{cheng2026llm,
+  title={LLM-in-Sandbox Elicits General Agentic Intelligence},
+  author={Cheng, Daixuan and Huang, Shaohan and Gu, Yuxian and Song, Huatong and Chen, Guoxin and Dong, Li and Zhao, Wayne Xin and Wen, Ji-Rong and Wei, Furu},
+  journal={arXiv preprint arXiv:2601.16206},
+  year={2026}
+}</pre>
+        </div>
+    </section>
 
     <!-- Footer -->
     <footer>
@@ -1362,6 +1440,21 @@
                 closeDemo();
             }
         });
+
+        // Copy citation to clipboard
+        function copyCitation() {
+            const citationText = document.getElementById('citationText').textContent;
+            navigator.clipboard.writeText(citationText).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                const btnText = document.getElementById('copyBtnText');
+                btn.classList.add('copied');
+                btnText.textContent = '✓ Copied!';
+                setTimeout(() => {
+                    btn.classList.remove('copied');
+                    btnText.textContent = '📋 Copy';
+                }, 2000);
+            });
+        }
     </script>
 
 </body>
